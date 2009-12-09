@@ -17,11 +17,11 @@ end %>
     data-parent-id    = "<%= parent.id %>"
     data-parent-type  = "<%= parent_name %>"
     data-upload-type  = "<%= type %>"
-    <% if defined?(uid)  %> <%# TODO Dirty Hack  %>
+    <% if defined?(schema_attribute) && defined?(schema_uid) %>s
         data-schema-class = "Category"
         data-schema-id    = "<%= parent.is_a?(Category) ? parent.id : parent.category.id %>"
         data-schema-attr  = "<%= schema_attribute %>"
-        data-schema-uid   = "<%= uid %>"
+        data-schema-uid   = "<%= schema_uid %>"
     <% end %>
     <% if type == 'collection' and id -%>
         data-collection-id = "<%= id %>"
