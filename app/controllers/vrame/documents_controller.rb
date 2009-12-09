@@ -19,9 +19,9 @@ class Vrame::DocumentsController < Vrame::VrameController
   end
   
   def create
-    @category = Category.find(params[:category_id])
+    @category = Category.by_language(current_language).find(params[:category_id])
     
-    @document = Document.new(params[:document].merge({ :category => @category }))
+    @document = current_language.documents.build(params[:document].merge({ :category => @category }))
     
     if @document.save
       flash[:success] = 'Dokument angelegt'
@@ -42,7 +42,7 @@ class Vrame::DocumentsController < Vrame::VrameController
   end
   
   def update
-    @document = Document.find(params[:id])
+    @document = Document.by_language(current_language).find(params[:id])
     
     if @document.update_attributes(params[:document])
       flash[:success] = 'Dokument aktualisiert'

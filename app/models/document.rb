@@ -25,6 +25,7 @@ class Document < ActiveRecord::Base
   named_scope :by_language, lambda { |language| { :conditions => { :language_id => language.id } } }
   
   validates_presence_of :title
+  validates_presence_of :language_id
   
   Public_attributes = %w(id title url meta_keywords meta_description meta_title category_id language_id updated_at created_at)
   
