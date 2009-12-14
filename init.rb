@@ -81,11 +81,7 @@ config.to_prepare do
   end
 end
 
-unless File.exist?(File.join(RAILS_ROOT, 'public', "vrame")) || ['vrame:sync', 'vrame:bootstrap', 'gems:install'].include?(ARGV[0])
-  puts "\033[31m"
-  puts "Please run rake vrame:sync before continuing"
-  puts "\033[36m"
-  puts "rake vrame:sync"
-  puts "\033[0m"
-  raise "VRAME Bootstrap Error"
-end
+VRAME_ASSETS = File.join(File.dirname(__FILE__), 'public', 'vrame')
+VRAME_PUB    = File.join(RAILS_ROOT, 'public', 'vrame')
+FileUtils.rmdir VRAME_PUB if File.exist?(VRAME_PUB)
+FileUtils.cp_r(VRAME_ASSETS, File.dirname(VRAME_PUB))
