@@ -75,6 +75,7 @@ config.to_prepare do
     config.after_password_reset_redirect = '/signin/'
     config.after_password_update_redirect = '/vrame/'
     config.after_signup_disabled_redirect = '/signin/'
+    config.backend_namespace = 'vrame'
     config.disable_signup = true
     config.layout("vrame")
   end
