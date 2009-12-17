@@ -54,6 +54,6 @@ class DocumentsController < ApplicationController
   end
   
   def search
-    @documents = Document.search(params[:q], language => current_language, :page => params[:page], :per_page => 10)
+    @documents = Document.search(params[:q], :language => current_language, :page => params[:page], :per_page => 10)
   end
 end
