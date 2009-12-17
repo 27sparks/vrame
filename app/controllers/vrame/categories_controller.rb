@@ -54,6 +54,7 @@ class Vrame::CategoriesController < Vrame::VrameController
   
   def create
     @category = Category.new(params[:category])
+    @category.language = current_language
     
     if @category.save
       flash[:success] = 'Kategorie angelegt'
