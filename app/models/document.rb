@@ -71,7 +71,7 @@ class Document < ActiveRecord::Base
     or documents.meta_keywords like '%#{query_string}%'
     or documents.meta_description like '%#{query_string}%')
     and searchable = 1"
-    where = "#{where} and document.language_id = #{language.id}" if not language.nil?
+    where = "#{where} and documents.language_id = #{language.id}" if not language.nil?
     
     sql = "select documents.* from documents where #{where}"
     self.paginate_by_sql sql, options
