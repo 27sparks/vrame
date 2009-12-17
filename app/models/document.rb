@@ -63,6 +63,7 @@ class Document < ActiveRecord::Base
   
   def self.search(keyword, options = { :page => 1, :per_page => 10, :language => nil })
     query_string = keyword.gsub(/\\/, '\&\&').gsub(/'/, "''").gsub('%', '\%').gsub('_', '\_')
+    language = options[:language]
     
     where = "(documents.title like '%#{query_string}%'
     or documents.meta_json like '%#{query_string}%'
