@@ -2,8 +2,12 @@
 
 <% if @collection.collectionable %>
 	<p>
-		Collection vom <%= @collection.collectionable.class %>
+		Collection vom
+		<%= @collection.collectionable.class %>
 		<%= link_to h(@collection.collectionable.title), [:edit, :vrame, @collection.collectionable] %>
+	</p>
+	<p style="margin: 5px 0 10px;">
+		<%= link_to 'Fertig &amp; zurück', [:edit, :vrame, @collection.collectionable], :class => 'button', :style => 'display: inline-block' %>
 	</p>
 <% end %>
 
