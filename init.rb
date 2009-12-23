@@ -63,7 +63,10 @@ config.to_prepare do
   end
 end
 
-VRAME_ASSETS = File.join(File.dirname(__FILE__), 'public', 'vrame')
-VRAME_PUB    = File.join(RAILS_ROOT, 'public', 'vrame')
-FileUtils.rmtree VRAME_PUB if File.exist?(VRAME_PUB)
-FileUtils.cp_r(VRAME_ASSETS, File.dirname(VRAME_PUB))
+
+if (RUBY_PLATFORM =~ /mswin32/ || Process.uid != 0)
+  VRAME_ASSETS = File.join(File.dirname(__FILE__), 'public', 'vrame')
+  VRAME_PUB    = File.join(RAILS_ROOT, 'public', 'vrame')
+  FileUtils.rmtree VRAME_PUB if File.exist?(VRAME_PUB)
+  FileUtils.cp_r(VRAME_ASSETS, VRAME_PUB)
+end
