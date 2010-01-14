@@ -25,30 +25,12 @@ rescue Exception => e
   raise "VRAME Bootstrap Error"
 end
 
-config.gem 'coupa-acts_as_tree',
-  :lib     => 'coupa-acts_as_tree',
-  :source  => 'http://gems.github.com'
-
-config.gem 'binarylogic-authlogic',
-  :lib     => 'authlogic',
-  :source  => 'http://gems.github.com'
-
-config.gem 'mislav-will_paginate',
-  :lib     => 'will_paginate',
-  :source  => 'http://gems.github.com'
-
-config.gem 'mini_magick',
-  :lib     => 'mini_magick'
-
-config.gem 'thoughtbot-paperclip',
-  :lib     => 'paperclip',
-  :source  => 'http://gems.github.com',
-  :version => '~>2.3.1'
-
-config.gem 'norman-friendly_id',
-  :lib     => 'friendly_id',
-  :source  => 'http://gems.github.com'
-    
+config.gem 'acts_as_tree'
+config.gem 'authlogic'
+config.gem 'will_paginate'
+config.gem 'mini_magick'
+config.gem 'paperclip', :version => '~>2.3.1'
+config.gem 'friendly_id'
 config.gem 'daemons'
 
 $:.unshift "#{File.dirname(__FILE__)}/lib"
