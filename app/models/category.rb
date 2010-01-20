@@ -5,6 +5,9 @@ class Category < ActiveRecord::Base
   has_many :documents, :order => :position
   belongs_to :parent,
     :class_name => 'Category'
+  has_many :children,
+    :class_name  => 'Category',
+    :foreign_key => 'parent_id'
   belongs_to :language
   has_many :collections, :dependent => :destroy, :as => :collectionable
   has_many :assets, :order => "position", :dependent => :destroy, :as => :assetable
