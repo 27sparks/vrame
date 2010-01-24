@@ -2,7 +2,7 @@ module Vrame
   class NoLanguageInDatabaseError < RuntimeError; end
   
   class << self
-    # The Configuration instance used to configure the NineAuthEngine
+    # The Configuration instance used to configure VRAME
     def configuration
       @@configuration ||= Configuration.new
     end
@@ -64,6 +64,24 @@ module Vrame
       self.image_styles       = HashWithIndifferentAccess.new
       self.posterframe_styles = HashWithIndifferentAccess.new
     end
+  end
+  
+  module Mailer
+    def self.options
+      @@options ||= {
+        :from => 'Vrame <noreply@example.com>',
+        :subject => {
+          :confirmation => 'Please confirm your subscription to our newsletter',
+          :welcome      => 'Welcome to our newsletter!',
+          :unsubscribe  => 'You have been unsubscribed from our newsletter'
+        }
+      }
+    end
+    
+    def self.options=(new_options)
+      @@options = options.merge(new_options)
+    end
+    
   end
   
 end

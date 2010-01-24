@@ -1,7 +1,7 @@
 class NewsletterMailer < ActionMailer::Base
   def newsletter(newsletter, recipient)
     recipients    recipient.email
-    from          "Aoste-Newsletter <noreply@aoste.de>"
+    from          Vrame::Mailer.options[:from]
     subject       newsletter.title_for(recipient)
     sent_on       Time.now
     content_type  "multipart/alternative"
@@ -17,8 +17,8 @@ class NewsletterMailer < ActionMailer::Base
   
   def confirmation_request(recipient)    
     recipients    recipient.email
-    from          "Aoste Newsletter <noreply@aoste.de>"
-    subject       "Bestätigung des Aoste Newsletter-Abonnements"
+    from          Vrame::Mailer.options[:from]
+    subject       Vrame::Mailer.options[:subjects][:confirmation]
     sent_on       Time.now
     content_type  "multipart/alternative"
     
@@ -28,8 +28,8 @@ class NewsletterMailer < ActionMailer::Base
   
   def welcome_message(recipient)
     recipients    recipient.email
-    from          "Aoste Newsletter <noreply@aoste.de>"
-    subject       "Aoste Newsletter-Abonnement bestätigt!"
+    from          Vrame::Mailer.options[:from]
+    subject       Vrame::Mailer.options[:subjects][:welcome]
     sent_on       Time.now
     content_type  "multipart/alternative"
     
@@ -39,8 +39,8 @@ class NewsletterMailer < ActionMailer::Base
   
   def unsubscribe_message(recipient)
     recipients    recipient.email
-    from          "Aoste Newsletter <noreply@aoste.de>"
-    subject       "Ihre E-Mail-Adresse wurde vom Aoste-Newsletter entfernt"
+    from          Vrame::Mailer.options[:from]
+    subject       Vrame::Mailer.options[:subjects][:unsubscribe]
     sent_on       Time.now
     content_type  "multipart/alternative"
     
