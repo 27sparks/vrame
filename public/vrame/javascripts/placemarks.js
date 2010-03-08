@@ -1,54 +1,124 @@
 GMap = function(placemark_div) {
-    this.div        = placemark_div;
-    this.div.gmap   = this;
-    this.map_canvas = $(".map_canvas",  this.div)[0];
-    this.map = new google.maps.Map(this.map_canvas, {
+    this.div = placemark_div;
+    this.div.gmap = this;
+    
+    this.map_canvas = $(".map_canvas",  this.div);
+    this.json_field = $(".json_string", this.div);
+    this.form = $(this.json_field.attr("form"));
+    this.address_field = $(".address", this.div);
+    this.spinner = $(".spinner", this.div);
+    this.suggestion = $(".suggestion", this.div);
+    this.address_suggestion_output = $(".address_suggestion", this.div);
+    this.accept_suggestion_button = $(".accept_suggestion", this.div);
+    
+    this.map = new google.maps.Map(this.map_canvas[0], {
         zoom: 5,
         center: GMap.deutschland,
         mapTypeId: google.maps.MapTypeId.ROADMAP
     });
-    this.marker = new google.maps.Marker({visible: false, map: this.map, clickable: false});
-
-    var placemark  = GMap.parse($(".json_string", this.div).val());
-
+    
+    this.marker = new google.maps.Marker({
+        visible: false,
+        map: this.map,
+        clickable: false
+    });
+    
+    var placemark = GMap.parse(this.json_field.val());
+    
     if (typeof(placemark) == "object" && placemark != null) {
         this.relocate_map(placemark);
         this.set_marker(placemark.geometry.location);
-        $(".address").val(placemark.formatted_address);
-    } else {
+        this.address_field.val(placemark.formatted_address);
     }
+    
+    // Setup event handling
+    
+    this.old_address = this.address_field.val();
+    this.relocate_timer = null;
+    
+    var eventData  = { gmap : this };
+    this.address_field
+        .bind("keyup", eventData , this.update_handler)
+        .bind("keypress", eventData, this.update_handler)
+        .bind("blur", eventData, this.update_handler);
+    
+    this.accept_suggestion_button.bind("click", eventData, this.accept_suggestion);
+    
+    this.form.bind('submit', eventData, this.empty_json_field);
+};
 
-    var old_address = $(".address").val();
-    var relocate_timer = null;
-    var gmap = this;
-    $(".address")
-        .keyup(function(e){
-            if(e.keyCode == 13){
-                e.preventDefault();
-            }
-            var new_address = $(this).val();
-            if (new_address != old_address) { //only act on changes
-                old_address = new_address;
 
-                if (relocate_timer != null) { //reset old timer
-                    clearTimeout(relocate_timer);
-                    relocate_timer = null;
-                    $("#geolocation_spinner").hide();
-                }
-                $("#geolocation_spinner").show();
-                relocate_timer = setTimeout(function(){
-                    gmap.update();
-                    relocate_timer = null;
-                    $("#geolocation_spinner").hide();
-                }, 1500)
+GMap.prototype = {
+    set_marker : function(pos){
+        this.marker.setPosition(pos);
+        this.marker.setVisible(true);
+    },
+    
+    unset_marker : function() {
+        this.marker.setVisible(false);
+    },
+    
+    relocate_map : function(placemark) {
+        this.map.fitBounds(placemark.geometry.viewport);
+        this.set_marker(placemark.geometry.location);
+    },
+    
+    update_handler : function(e){
+        var gmap = e.data.gmap;
+        if (e.keyCode == 13) {
+            e.preventDefault();
+        }
+        var new_address = $(this).val();
+        if (new_address != gmap.old_address) { //only act on changes
+            gmap.old_address = new_address;
+
+            if (gmap.relocate_timer) { //reset old timer
+                clearTimeout(gmap.relocate_timer);
             }
-        })
-        .keypress(function(e){
-            if(e.keyCode == 13){
-                e.preventDefault();
+            gmap.relocate_timer = setTimeout(function(){
                 gmap.update();
-            }      
-        })
+            }, 500);
+        }
+    },
+    
+    update : function() {
+        var gmap = this;
+        var address = gmap.address_field.val();
+        gmap.spinner.show();
+        GMap.geocoder.geocode({
+            address: address,
+            bounds: this.map.getBounds()
+        }, function (result, status) {
+            gmap.spinner.hide();
+            var first_result = result[0];
+            if (status === 'OK' && first_result) {
+                gmap.relocate_map(first_result);
+                gmap.suggest_address(first_result);
+            }
+        });
+    },
+    
+    suggest_address : function (result) {
+        this.address_suggestion_output.html(result.formatted_address)
+        this.address_suggestion = result;
+        this.suggestion.show();
+    },
+    
+    accept_suggestion : function (e) {
+        var gmap = e.data.gmap;
+        var address = gmap.address_suggestion;
+        var serialized_address = GMap.stringify(address);
+        gmap.json_field.val(serialized_address);
+        gmap.address_field.val(address.formatted_address);
+        gmap.suggestion.hide();
+    },
+    
+    empty_json_field : function (e) {
+        var gmap = e.data.gmap;
+        if (gmap.address_field.val() == "") {
+            gmap.json_field.val("");
+        }
+    }
     
 }
 
@@ -56,13 +126,15 @@ GMap.stringify = function(o) {
     var result_geometry = {
         location : {
             lat   : o.geometry.location.lat(),
-            lng   : o.geometry.location.lng() },
+            lng   : o.geometry.location.lng()
+        },
         location_type : o.geometry.location_type,
         viewport : {
             north : o.geometry.viewport.getNorthEast().lat(),
             east  : o.geometry.viewport.getNorthEast().lng(),
             south : o.geometry.viewport.getSouthWest().lat(),
-            west  : o.geometry.viewport.getSouthWest().lng() }
+            west  : o.geometry.viewport.getSouthWest().lng()
+        }
     };
     if (o.geometry.bounds) {
         result_geometry.bounds = {
@@ -74,7 +146,7 @@ GMap.stringify = function(o) {
     }
     o.geometry = result_geometry;
     return JSON.stringify(o);
-}
+};
 
 GMap.parse = function(s) {
     if (s == "") return null;
@@ -90,54 +162,21 @@ GMap.parse = function(s) {
         geometry.bounds = new google.maps.LatLngBounds(
                 new google.maps.LatLng(o.geometry.bounds.south, o.geometry.bounds.west),
                 new google.maps.LatLng(o.geometry.bounds.north, o.geometry.bounds.east)
-            );    
+            );
     }
     o.geometry = geometry;
     return o;
-}
+};
 
 // Transform Google's address components into a key-value object
 GMap.transform_address = function(address_components) {
     var result = {};
     for (var i=0; i < address_components.length; i++) {
         var key   = address_components[i].types[0];
-        var value = address_components[i].long_name
+        var value = address_components[i].long_name;
         result[key] = value;
-    };
-    
-    return result;
-}
-
-GMap.prototype = {
-    set_marker : function(pos){
-        this.marker.setPosition(pos);
-        this.marker.setVisible(true);
-    },
-    
-    unset_marker : function() {
-        this.marker.setVisible(false);    
-    },
-    
-    relocate_map : function(placemark) {
-        this.map.fitBounds(placemark.geometry.viewport);
-        this.set_marker(placemark.geometry.location);
-    },
-    
-    update : function() {
-        var address = $(".address", this.div).val();
-        var gmap = this;
-        GMap.geocoder.geocode({address: address, bounds: this.map.getBounds()}, function(result, status){
-            gmap.relocate_map(result[0]);
-            $(".json_string").val(GMap.stringify(result[0]));
-            $(".address", gmap.div).val(result[0].formatted_address)
-        })
     }
-    
-}
-
-GMap.update = function(field_id) {
-    var placemark_div = $("#"+field_id)[0];
-    placemark_div.gmap.update();
+    return result;
 }
 
 GMap.initialize_placemark_divs = function(){
@@ -147,8 +186,8 @@ GMap.initialize_placemark_divs = function(){
     } catch(e) {
     }
     $("div.placemark").each(function(){
-        this.gmap = new GMap(this)
+        this.gmap = new GMap(this);
     });
-}
+};
 
 $(GMap.initialize_placemark_divs);

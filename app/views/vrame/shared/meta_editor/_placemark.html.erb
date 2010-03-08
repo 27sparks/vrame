@@ -2,11 +2,15 @@
 <% parent_name_lowercase = parent_name.downcase %>
 
 <div class="placemark" id="<%= field_id %>" data-parent-id="<%=h parent.id %>" data-parent-type="<%=h parent_name %>">
-	<input type="text" class="address">
-	(<a href="javascript:GMap.update('<%= field_id %>')">Karte aktualisieren</a>)
-  <img src="/vrame/images/admin/ajax-loading-white.gif" style="display:none; vertical-align: text-bottom" id="geolocation_spinner">
-  <br/><br/>
-	<div class="map_canvas" style="width:50%; height:300px"></div><br/>
-	<input type="hidden" name="<%= field_name %>" class="json_string" value="<%= h value %>">
-	
+    <p>
+        <input type="hidden" name="<%= field_name %>" class="json_string" value="<%= h value %>">
+        <input type="text" class="address">
+        <img src="/vrame/images/admin/ajax-loading-white.gif" style="display:none; vertical-align: text-bottom" alt="" class="spinner">
+    </p>
+    <p class="suggestion" style="display:none;">
+        Gefundene Adresse:
+        <strong class="address_suggestion"></strong>
+        &bull; <a href="javascript:void(0)" class="accept_suggestion">Übernehmen</a>
+    </p>
+    <div class="map_canvas" style="width:50%; height:300px"></div>
 </div>
