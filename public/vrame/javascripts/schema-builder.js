@@ -22,8 +22,6 @@ jQuery(function ($) {
     /* Field addition and deletion */
     
     function fieldAdded (tr) {
-        //console.log('schema builder: field added', tr);
-        
         /* Setup event handling on clone */
         setupSlugGenerator(tr);
         
@@ -35,7 +33,6 @@ jQuery(function ($) {
     }
     
     function fieldRemoved (tr) {
-        //console.log('schema builder: field removed');
         removeFieldOptions(tr);
     }
     
@@ -129,14 +126,11 @@ jQuery(function ($) {
     /* Field options addition and deletion */
     
     function addFieldOptions (tr, internalFieldType) {
-        //console.log('addFieldOptions', internalFieldType, 'for', tr, ', type options:');
         var o = fieldTypeBehavior[internalFieldType];
         
         if (!o) {
-            //console.log('this type doesn\'t have field options. :-/');
             return;
         }
-        //console.log('this type has field options! =)', o);
         
         /* Add has-field-options class */
         tr.addClass(hasFieldOptions);
@@ -146,11 +140,9 @@ jQuery(function ($) {
         
         /* Setup event handling on the clone*/
         setupOptionPopulation(clone);
-        
     }
     
     function removeFieldOptions (tr, o) {
-        //console.log('removeFieldOptions', tr);
         tr.removeClass(hasFieldOptions).next('.field-options').remove();
     }
     
@@ -159,16 +151,14 @@ jQuery(function ($) {
     setupOptionPopulation();
     
     function setupOptionPopulation (tr) {
-        //console.log('setupOptionPopulation', tr);
-        var schemaBuilderPrototypes = $('#schema-builder-prototypes');
         /* Collect buttons */
-        
         for (var key in fieldTypeBehavior) {
             var o = fieldTypeBehavior[key];
-            if (!o.optionButton) continue;
-            var container = tr || schemaBuilderPrototypes,
+            if (!o.optionButton) {
+                continue;
+            }
+            var container = tr || $(document.body),
                 buttons = container.find(o.optionButton);
-            //console.log(container, o.optionButton, '>', buttons);
             buttons
                 /* Don't treat a button twice, set and check a flag */
                 .filter(function () {
@@ -179,16 +169,17 @@ jQuery(function ($) {
                 /* Setup event handling */
                 .click(populateOption);
         }
-        
     }
     
     function populateOption () {
-        //console.log('populateOption');
         var button = $(this),
             o = button.data('populateOption'),
             tr = button.closest('tr'),
             target = tr.find(o.optionTarget);
-        tr.find(o.optionPrototype).clone().appendTo(target);
+        
+        var clone = tr.find(o.optionPrototype).clone().appendTo(target);
+        /* Empty text fields */
+        clone.find('input:text').val('');
     }
     
 });
