@@ -84,6 +84,13 @@ class Category < ActiveRecord::Base
     self.published = false
     self.save
   end
+  
+  def deep_copy(lang)
+    copy = self.clone
+    copy.language_id = lang.id
+    copy.children = self.children.map{ |c| c.deep_copy(lang) }
+    return copy
+  end
 
 private
 
