@@ -2,14 +2,14 @@ GMap = function(placemark_div) {
     this.div = placemark_div;
     this.div.gmap = this;
     
-    this.map_canvas = $(".map_canvas",  this.div);
-    this.json_field = $(".json_string", this.div);
-    this.form = $(this.json_field.attr("form"));
-    this.address_field = $(".address", this.div);
-    this.spinner = $(".spinner", this.div);
-    this.suggestion = $(".suggestion", this.div);
-    this.address_suggestion_output = $(".address_suggestion", this.div);
-    this.accept_suggestion_button = $(".accept_suggestion", this.div);
+    this.map_canvas = $('.map_canvas',  this.div);
+    this.json_field = $('.json_string', this.div);
+    this.form = $(this.json_field.attr('form'));
+    this.address_field = $('.address', this.div);
+    this.spinner = $('.spinner', this.div);
+    this.suggestion = $('.suggestion', this.div);
+    this.address_suggestion_output = $('.address_suggestion', this.div);
+    this.accept_suggestion_button = $('.accept_suggestion', this.div);
     
     this.map = new google.maps.Map(this.map_canvas[0], {
         zoom: 5,
@@ -25,7 +25,7 @@ GMap = function(placemark_div) {
     
     var placemark = GMap.parse(this.json_field.val());
     
-    if (typeof(placemark) == "object" && placemark != null) {
+    if (typeof(placemark) == 'object' && placemark != null) {
         this.relocate_map(placemark);
         this.set_marker(placemark.geometry.location);
         this.address_field.val(placemark.formatted_address);
@@ -38,13 +38,13 @@ GMap = function(placemark_div) {
     
     var eventData  = { gmap : this };
     this.address_field
-        .bind("keyup", eventData , this.update_handler)
-        .bind("keypress", eventData, this.update_handler)
-        .bind("blur", eventData, this.update_handler);
+        .bind('keyup', eventData , this.update_handler)
+        .bind('keypress', eventData, this.update_handler)
+        .bind('blur', eventData, this.update_handler);
     
-    this.accept_suggestion_button.bind("click", eventData, this.accept_suggestion);
+    this.accept_suggestion_button.bind('click', eventData, this.accept_suggestion);
     
-    this.form.bind('submit', eventData, this.empty_json_field);
+    this.form.bind('submit', eventData, this.submit_check);
 };
 
 
@@ -113,10 +113,16 @@ GMap.prototype = {
         gmap.suggestion.hide();
     },
     
-    empty_json_field : function (e) {
+    submit_check : function (e) {
         var gmap = e.data.gmap;
-        if (gmap.address_field.val() == "") {
-            gmap.json_field.val("");
+        var address = gmap.address_field.val();
+        var json_value = gmap.json_field.val();
+        if (address == '') {
+            gmap.json_field.val('');
+        } else if (json_value == '') {
+            alert('Bitte übernehmen Sie eine von Google Maps gefundene Adresse vor dem Speichern');
+            gmap.address_field.focus();
+            return false;
         }
     }
     
@@ -149,8 +155,15 @@ GMap.stringify = function(o) {
 };
 
 GMap.parse = function(s) {
-    if (s == "") return null;
-    var o = JSON.parse(s);
+    if (s == '') return null;
+    try {
+        var o = JSON.parse(s);
+    } catch (e) {
+        return false;
+    }
+    if (!o.geometry) {
+        return false;
+    }
     var geometry = {};
     geometry.location = new google.maps.LatLng(o.geometry.location.lat, o.geometry.location.lng);
     geometry.location_type = o.geometry.location_type;
@@ -185,7 +198,7 @@ GMap.initialize_placemark_divs = function(){
         GMap.deutschland = new google.maps.LatLng(51.1656910, 10.4515260);
     } catch(e) {
     }
-    $("div.placemark").each(function(){
+    $('div.placemark').each(function(){
         this.gmap = new GMap(this);
     });
 };
