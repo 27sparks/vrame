@@ -1,4 +1,7 @@
 <ol class="select-options">
+<% if field.is_a? JsonObject::Types::MultiSelect %>
+<input type="hidden" name="<%= field_name %>[]">
+<% end %>
 <% field.options.each do |option| %>
 	<li>
 		<label>
