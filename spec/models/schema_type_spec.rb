@@ -173,6 +173,15 @@ describe JsonObject::Types::MultiSelect do
     @new_multiselect.value_valid?(['d']).should_not be_true
     @new_multiselect.value_valid?(['a', 'd']).should_not be_true
   end
+  
+  it "should remove empty options" do
+    @new_multiselect.value_valid?(['']).should_not be_true
+
+    @new_multiselect.value_from_param(['a', 'b']).should eql(['a', 'b'])
+    @new_multiselect.value_from_param(['b', 'a']).should eql(['b', 'a'])
+    @new_multiselect.value_from_param([]).should eql([])
+    @new_multiselect.value_from_param(['', 'a', 'b']).should eql(['a', 'b'])
+  end
 end
 
 describe JsonObject::Types::Bool do
